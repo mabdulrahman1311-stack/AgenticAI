@@ -1,19 +1,25 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { api } from './services/api';
 import { Topic, EnrichedPaperItem, TrendSnapshot, MonitoringRun, SystemStats } from './types';
-import { Navbar } from './components/Navbar';
+import { Sidebar, NavItem } from './components/Sidebar';
+import { Topbar } from './components/Topbar';
 import { DashboardOverview } from './components/DashboardOverview';
 import { TopicDetailView } from './components/TopicDetailView';
 import { EvidenceDrawer } from './components/EvidenceDrawer';
 import { RunLogsDrawer } from './components/RunLogsDrawer';
 import { CreateTopicModal } from './components/CreateTopicModal';
 import { ScenarioTesterModal } from './components/ScenarioTesterModal';
+import { Sparkles, Crown, Check, X } from 'lucide-react';
 
 export const App: React.FC = () => {
   // Theme state
   const [darkMode, setDarkMode] = useState<boolean>(() => {
     return localStorage.getItem('theme') !== 'light';
   });
+
+  // Navigation state
+  const [activeNav, setActiveNav] = useState<NavItem>('home');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
 
   // Data states
   const [topics, setTopics] = useState<Topic[]>([]);
@@ -36,6 +42,7 @@ export const App: React.FC = () => {
   const [isCreateTopicOpen, setIsCreateTopicOpen] = useState<boolean>(false);
   const [isScenarioTesterOpen, setIsScenarioTesterOpen] = useState<boolean>(false);
   const [isRunLogsOpen, setIsRunLogsOpen] = useState<boolean>(false);
+  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState<boolean>(false);
   const [selectedPaperForDrawer, setSelectedPaperForDrawer] = useState<EnrichedPaperItem | null>(null);
 
   // Loading & Action states
@@ -55,13 +62,6 @@ export const App: React.FC = () => {
     const next = !darkMode;
     setDarkMode(next);
     localStorage.setItem('theme', next ? 'dark' : 'light');
-    if (next) {
-      document.documentElement.classList.add('dark');
-      document.documentElement.classList.remove('light');
-    } else {
-      document.documentElement.classList.remove('dark');
-      document.documentElement.classList.add('light');
-    }
   };
 
   useEffect(() => {
@@ -87,10 +87,15 @@ export const App: React.FC = () => {
       setStats(fetchedStats);
       setAllRuns(fetchedRuns);
 
-      // Fetch sample breakthroughs from first topic if available
+      // Fetch sample breakthroughs across topics
       if (fetchedTopics.length > 0) {
         const samplePapers = await api.getTopicPapers(fetchedTopics[0].id, { group_by_cluster: true });
-        setRecentBreakthroughs(samplePapers);
+        if (fetchedTopics.length > 1) {
+          const samplePapers2 = await api.getTopicPapers(fetchedTopics[1].id, { group_by_cluster: true });
+          setRecentBreakthroughs([...samplePapers, ...samplePapers2]);
+        } else {
+          setRecentBreakthroughs(samplePapers);
+        }
       }
     } catch (err: any) {
       console.error('Error loading initial dashboard data:', err);
@@ -133,7 +138,6 @@ export const App: React.FC = () => {
     try {
       const res = await api.triggerTopicRun(topicId);
       showToast(`Run complete! Status: ${res.status}. Found updates.`);
-      // Reload topics and topic detail
       await loadInitialData();
       if (selectedTopic && selectedTopic.id === topicId) {
         await loadTopicData(topicId);
@@ -202,6 +206,30 @@ export const App: React.FC = () => {
       showToast(`Failed to update trends: ${err.message}`);
     } finally {
       setIsRegeneratingTrends(false);
+    }
+  };
+
+  // Handle Sidebar Navigation
+  const handleNavigate = (item: NavItem) => {
+    setActiveNav(item);
+    if (item === 'home') {
+      setSelectedTopic(null);
+    } else if (item === 'topics') {
+      if (topics.length > 0) setSelectedTopic(topics[0]);
+    } else if (item === 'monitoring') {
+      setIsRunLogsOpen(true);
+    } else if (item === 'insights') {
+      if (topics.length > 0) {
+        setSelectedTopic(topics[0]);
+        setSignificanceFilter('High Impact');
+      }
+    } else if (item === 'analytics') {
+      const t = topics[1] || topics[0];
+      if (t) setSelectedTopic(t);
+    } else if (item === 'assistant') {
+      window.scrollTo({ top: 400, behavior: 'smooth' });
+    } else if (item === 'saved' || item === 'settings') {
+      showToast(`Navigated to ${item} section`);
     }
   };
 
@@ -275,68 +303,104 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col font-sans transition-colors duration-200">
+    <div className="min-h-screen bg-dark-bg text-text-primary flex font-sans transition-colors duration-200">
       
       {/* Toast Notification */}
       {notification && (
-        <div className="fixed bottom-5 right-5 z-50 px-4 py-2.5 rounded-xl bg-slate-900 border border-cyan-500/50 text-cyan-300 text-xs font-mono shadow-2xl flex items-center space-x-2 animate-fade-in">
-          <span className="flex h-2 w-2 rounded-full bg-cyan-400 animate-ping"></span>
+        <div className="fixed bottom-5 right-5 z-50 px-4 py-2.5 rounded-xl bg-dark-card border border-primary-cyan text-primary-cyan text-xs font-mono shadow-2xl flex items-center space-x-2 animate-fade-in">
+          <span className="flex h-2 w-2 rounded-full bg-primary-cyan animate-ping" />
           <span>{notification}</span>
         </div>
       )}
 
-      {/* Top Navbar */}
-      <Navbar
-        stats={stats}
-        darkMode={darkMode}
-        onToggleTheme={handleToggleTheme}
-        onOpenCreateTopic={() => setIsCreateTopicOpen(true)}
-        onOpenScenarioModal={() => setIsScenarioTesterOpen(true)}
-        onOpenLogsModal={() => setIsRunLogsOpen(true)}
-        onTriggerAll={handleTriggerAll}
-        isTriggering={isTriggering}
-        activeView={selectedTopic ? 'topic-detail' : 'dashboard'}
-        onNavigateHome={() => setSelectedTopic(null)}
+      {/* Left Navigation Sidebar */}
+      <Sidebar
+        activeNav={activeNav}
+        onNavigate={handleNavigate}
+        isOpenMobile={isMobileMenuOpen}
+        onCloseMobile={() => setIsMobileMenuOpen(false)}
+        onOpenUpgradeModal={() => setIsUpgradeModalOpen(true)}
       />
 
-      {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8">
-        {selectedTopic ? (
-          <TopicDetailView
-            topic={selectedTopic}
-            papers={topicPapers}
-            trends={topicTrends}
-            runs={topicRuns}
-            onBack={() => {
-              setSelectedTopic(null);
-              loadInitialData();
-            }}
-            onTriggerTopic={handleTriggerTopic}
-            isTriggering={isTriggering}
-            onSelectPaper={paper => setSelectedPaperForDrawer(paper)}
-            groupByCluster={groupByCluster}
-            onToggleGroupByCluster={() => setGroupByCluster(!groupByCluster)}
-            significanceFilter={significanceFilter}
-            onSetSignificanceFilter={setSignificanceFilter}
-            searchQuery={searchQuery}
-            onSetSearchQuery={setSearchQuery}
-            onRegenerateTrends={handleRegenerateTrends}
-            isRegeneratingTrends={isRegeneratingTrends}
-          />
-        ) : (
-          <DashboardOverview
-            topics={topics}
-            stats={stats}
-            onSelectTopic={topic => setSelectedTopic(topic)}
-            onOpenCreateTopic={() => setIsCreateTopicOpen(true)}
-            onTriggerAll={handleTriggerAll}
-            onTriggerTopic={handleTriggerTopic}
-            isTriggering={isTriggering}
-            recentBreakthroughs={recentBreakthroughs}
-            onSelectPaper={paper => setSelectedPaperForDrawer(paper)}
-          />
-        )}
-      </main>
+      {/* Main App Container (offset by sidebar width on desktop) */}
+      <div className="flex-1 lg:pl-64 flex flex-col min-w-0 min-h-screen">
+        
+        {/* Top Navigation Bar */}
+        <Topbar
+          onOpenMobileMenu={() => setIsMobileMenuOpen(true)}
+          darkMode={darkMode}
+          onToggleTheme={handleToggleTheme}
+          onOpenScenarioModal={() => setIsScenarioTesterOpen(true)}
+          onOpenLogsModal={() => setIsRunLogsOpen(true)}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          onSearchSubmit={() => {
+            if (searchQuery.trim() && topics.length > 0) {
+              setSelectedTopic(topics[0]);
+            }
+          }}
+        />
+
+        {/* Dynamic Content: Dashboard Overview or Topic Detail */}
+        <main className="flex-1 p-4 sm:p-6 lg:p-7 max-w-[1600px] w-full mx-auto">
+          {selectedTopic ? (
+            <TopicDetailView
+              topic={selectedTopic}
+              papers={topicPapers}
+              trends={topicTrends}
+              runs={topicRuns}
+              onBack={() => {
+                setSelectedTopic(null);
+                setActiveNav('home');
+                loadInitialData();
+              }}
+              onTriggerTopic={handleTriggerTopic}
+              isTriggering={isTriggering}
+              onSelectPaper={paper => setSelectedPaperForDrawer(paper)}
+              groupByCluster={groupByCluster}
+              onToggleGroupByCluster={() => setGroupByCluster(!groupByCluster)}
+              significanceFilter={significanceFilter}
+              onSetSignificanceFilter={setSignificanceFilter}
+              searchQuery={searchQuery}
+              onSetSearchQuery={setSearchQuery}
+              onRegenerateTrends={handleRegenerateTrends}
+              isRegeneratingTrends={isRegeneratingTrends}
+            />
+          ) : (
+            <DashboardOverview
+              topics={topics}
+              stats={stats}
+              onSelectTopic={topic => {
+                setSelectedTopic(topic);
+                setActiveNav('topics');
+              }}
+              onOpenCreateTopic={() => setIsCreateTopicOpen(true)}
+              onTriggerAll={handleTriggerAll}
+              onTriggerTopic={handleTriggerTopic}
+              isTriggering={isTriggering}
+              recentBreakthroughs={recentBreakthroughs}
+              onSelectPaper={paper => setSelectedPaperForDrawer(paper)}
+              onExploreTrends={() => {
+                const t = topics[1] || topics[0];
+                if (t) {
+                  setSelectedTopic(t);
+                  setActiveNav('analytics');
+                }
+              }}
+              onViewActivityLogs={() => setIsRunLogsOpen(true)}
+            />
+          )}
+        </main>
+
+        {/* Footer */}
+        <footer className="border-t border-dark-borderSubtle py-4 px-6 text-xs text-text-muted font-mono bg-dark-sidebar/40">
+          <div className="max-w-[1600px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+            <span>ResearchPulse &bull; DejaVu Hackathon Advanced Agentic AI Track</span>
+            <span className="text-text-muted">From Research to Real Intelligence</span>
+          </div>
+        </footer>
+
+      </div>
 
       {/* Traceable Evidence Drawer */}
       <EvidenceDrawer
@@ -372,13 +436,63 @@ export const App: React.FC = () => {
         isSeeding={isSeeding}
       />
 
-      {/* Footer */}
-      <footer className="border-t border-slate-800/60 py-6 mt-auto text-center text-xs text-slate-400 font-mono">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span>ResearchPulse &bull; DejaVu Hackathon Advanced Agentic AI Track</span>
-          <span className="text-slate-400">Meaningful Change Detection &bull; Cross-Source Deduplication &bull; Traceable Evidence</span>
+      {/* Pro Plan Upgrade Modal */}
+      {isUpgradeModalOpen && (
+        <div className="fixed inset-0 z-50 overflow-y-auto font-sans">
+          <div 
+            className="fixed inset-0 bg-dark-bg/80 backdrop-blur-sm transition-opacity"
+            onClick={() => setIsUpgradeModalOpen(false)}
+          />
+          <div className="min-h-full flex items-center justify-center p-4">
+            <div className="relative max-w-md w-full bg-dark-sidebar border border-dark-border rounded-2xl p-6 shadow-2xl z-10">
+              <div className="flex items-center justify-between pb-3 border-b border-dark-borderSubtle">
+                <div className="flex items-center space-x-2">
+                  <div className="p-1.5 rounded-lg bg-amber-500/10 text-amber-400">
+                    <Crown className="w-4 h-4" />
+                  </div>
+                  <h3 className="font-display font-bold text-base text-text-primary">
+                    ResearchPulse Pro
+                  </h3>
+                </div>
+                <button 
+                  onClick={() => setIsUpgradeModalOpen(false)}
+                  className="p-1 rounded-lg text-text-muted hover:text-text-primary"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="py-4 space-y-3 text-xs text-text-secondary">
+                <p>Unlock high-frequency autonomous agent sweeps, multi-model consensus, and unlimited research topics:</p>
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-2 text-text-primary">
+                    <Check className="w-4 h-4 text-accent-success" />
+                    <span>Continuous sub-hour arXiv & conference polling</span>
+                  </div>
+                  <div className="flex items-center space-x-2 text-text-primary">
+                    <Check className="w-4 h-4 text-accent-success" />
+                    <span>Real-time contradiction and consensus shift alerts</span>
+                  </div>
+                  <div className="flex items-center space-x-2 text-text-primary">
+                    <Check className="w-4 h-4 text-accent-success" />
+                    <span>Dedicated vector memory and automated weekly synthesis</span>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={() => {
+                  showToast('Pro Plan simulation activated with 25,000 credits!');
+                  setIsUpgradeModalOpen(false);
+                }}
+                className="w-full py-2.5 rounded-xl gradient-btn-purple text-white font-semibold text-xs transition-opacity hover:opacity-90 shadow-glow-violet"
+              >
+                Upgrade to Pro (Active Track)
+              </button>
+            </div>
+          </div>
         </div>
-      </footer>
+      )}
 
     </div>
   );

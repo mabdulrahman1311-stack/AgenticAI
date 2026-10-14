@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Plus, Sparkles, Clock, Tag } from 'lucide-react';
+import { X, Plus, Sparkles } from 'lucide-react';
 
 interface CreateTopicModalProps {
   isOpen: boolean;
@@ -61,55 +61,55 @@ export const CreateTopicModal: React.FC<CreateTopicModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
+    <div className="fixed inset-0 z-50 overflow-y-auto font-sans">
       <div 
-        className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 bg-dark-bg/80 backdrop-blur-sm transition-opacity"
         onClick={onClose}
       />
 
       <div className="min-h-full flex items-center justify-center p-4">
-        <div className="relative max-w-lg w-full bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl z-10">
+        <div className="relative max-w-lg w-full bg-dark-sidebar border border-dark-border rounded-2xl p-6 shadow-2xl z-10">
           
-          <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+          <div className="flex items-center justify-between pb-4 border-b border-dark-borderSubtle">
             <div className="flex items-center space-x-2.5">
-              <div className="p-2 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400">
+              <div className="p-2 rounded-xl bg-primary-cyan/15 border border-primary-cyan/30 text-primary-cyan">
                 <Plus className="w-5 h-5" />
               </div>
-              <h3 className="font-display font-bold text-base text-slate-100">
+              <h3 className="font-display font-bold text-base text-text-primary">
                 Create Monitored Research Topic
               </h3>
             </div>
             <button
               onClick={onClose}
-              className="p-1.5 text-slate-400 hover:text-slate-100 hover:bg-slate-800 rounded-lg transition-colors"
+              className="p-1.5 text-text-muted hover:text-text-primary hover:bg-dark-surface rounded-lg transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
 
           {error && (
-            <div className="mt-4 p-3 rounded-lg bg-rose-950/50 border border-rose-800 text-xs text-rose-300">
+            <div className="mt-4 p-3 rounded-lg bg-rose-500/15 border border-rose-500/40 text-xs text-rose-300">
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="mt-4 space-y-4 text-xs">
             <div>
-              <label className="block font-medium text-slate-300 mb-1">
-                Topic Title <span className="text-cyan-400">*</span>
+              <label className="block font-medium text-text-secondary mb-1">
+                Topic Title <span className="text-primary-cyan">*</span>
               </label>
               <input
                 type="text"
                 value={name}
                 onChange={e => setName(e.target.value)}
                 placeholder="e.g. Long-Horizon Tool-Use & Multi-Agent Planning"
-                className="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 text-xs"
+                className="w-full px-3 py-2 rounded-lg bg-dark-bg border border-dark-border text-text-primary placeholder-text-muted focus:outline-none focus:border-primary-cyan text-xs"
                 required
               />
             </div>
 
             <div>
-              <label className="block font-medium text-slate-300 mb-1">
+              <label className="block font-medium text-text-secondary mb-1">
                 Research Scope / Description
               </label>
               <textarea
@@ -117,13 +117,13 @@ export const CreateTopicModal: React.FC<CreateTopicModalProps> = ({
                 onChange={e => setDescription(e.target.value)}
                 placeholder="Describe what specific methodologies, benchmarks, or developments to track..."
                 rows={2}
-                className="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 text-xs resize-none"
+                className="w-full px-3 py-2 rounded-lg bg-dark-bg border border-dark-border text-text-primary placeholder-text-muted focus:outline-none focus:border-primary-cyan text-xs resize-none"
               />
             </div>
 
             <div>
-              <label className="block font-medium text-slate-300 mb-1">
-                Keywords for arXiv & Source Retrieval (comma-separated) <span className="text-cyan-400">*</span>
+              <label className="block font-medium text-text-secondary mb-1">
+                Keywords for arXiv & Source Retrieval (comma-separated) <span className="text-primary-cyan">*</span>
               </label>
               <div className="relative">
                 <input
@@ -131,21 +131,21 @@ export const CreateTopicModal: React.FC<CreateTopicModalProps> = ({
                   value={keywordsStr}
                   onChange={e => setKeywordsStr(e.target.value)}
                   placeholder="e.g. agentic reasoning, tool use, self-correction, webarena"
-                  className="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500 text-xs"
+                  className="w-full px-3 py-2 rounded-lg bg-dark-bg border border-dark-border text-text-primary placeholder-text-muted focus:outline-none focus:border-primary-cyan text-xs"
                   required
                 />
               </div>
-              <p className="text-[10px] text-slate-500 mt-1">
+              <p className="text-[10px] text-text-muted mt-1">
                 The agent parses Atom XML feeds from arXiv using these exact boolean query terms.
               </p>
             </div>
 
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label className="font-medium text-slate-300">
+                <label className="font-medium text-text-secondary">
                   Monitoring Interval (Hours)
                 </label>
-                <span className="font-mono font-bold text-cyan-400">{scheduleHours} Hours</span>
+                <span className="font-mono font-bold text-primary-cyan">{scheduleHours} Hours</span>
               </div>
               <input
                 type="range"
@@ -153,9 +153,9 @@ export const CreateTopicModal: React.FC<CreateTopicModalProps> = ({
                 max="24"
                 value={scheduleHours}
                 onChange={e => setScheduleHours(parseInt(e.target.value))}
-                className="w-full accent-cyan-500 cursor-pointer"
+                className="w-full accent-primary-cyan cursor-pointer"
               />
-              <div className="flex justify-between text-[10px] text-slate-500 font-mono">
+              <div className="flex justify-between text-[10px] text-text-muted font-mono">
                 <span>Every 1h</span>
                 <span>Every 6h</span>
                 <span>Every 12h</span>
@@ -163,18 +163,18 @@ export const CreateTopicModal: React.FC<CreateTopicModalProps> = ({
               </div>
             </div>
 
-            <div className="pt-3 border-t border-slate-800 flex items-center justify-end space-x-2">
+            <div className="pt-3 border-t border-dark-borderSubtle flex items-center justify-end space-x-2">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-3.5 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors"
+                className="px-3.5 py-2 rounded-lg text-text-muted hover:text-text-primary hover:bg-dark-surface transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="flex items-center space-x-1.5 px-4 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold disabled:opacity-50 transition-all font-sans"
+                className="flex items-center space-x-1.5 px-4 py-2 rounded-lg gradient-btn-active text-white font-semibold disabled:opacity-50 transition-all font-sans shadow-glow-blue"
               >
                 <Sparkles className="w-3.5 h-3.5" />
                 <span>{isSubmitting ? 'Initializing Topic...' : 'Start Monitoring'}</span>

@@ -8,28 +8,35 @@ export default {
   theme: {
     extend: {
       colors: {
-        brand: {
-          50: '#ecfeff',
-          100: '#cffafe',
-          200: '#a5f3fc',
-          300: '#67e8f9',
-          400: '#22d3ee',
-          500: '#06b6d4',
-          600: '#0891b2',
-          700: '#0e7490',
-          800: '#155e75',
-          900: '#164e63',
-          950: '#083344',
+        dark: {
+          bg: '#030817',
+          sidebar: '#050D1C',
+          header: '#050D1C',
+          card: '#071426',
+          cardHover: '#0b1d36',
+          surface: '#0A1930',
+          border: 'rgba(58, 130, 246, 0.24)',
+          borderSubtle: 'rgba(58, 130, 246, 0.12)',
         },
-        command: {
-          bg: '#090d16',
-          card: '#0f172a',
-          cardBorder: '#1e293b',
-          accent: '#38bdf8',
-          success: '#10b981',
-          warning: '#f59e0b',
-          danger: '#f43f5e',
-          info: '#6366f1'
+        primary: {
+          blue: '#168BFF',
+          cyan: '#00D9FF',
+          violet: '#8B5CF6',
+          magenta: '#D946EF',
+          DEFAULT: '#168BFF',
+        },
+        accent: {
+          blue: '#168BFF',
+          cyan: '#00D9FF',
+          violet: '#8B5CF6',
+          magenta: '#D946EF',
+          success: '#00E5B0',
+          warning: '#FFB020',
+        },
+        text: {
+          primary: '#F1F5FF',
+          secondary: '#91A5C4',
+          muted: '#617795',
         }
       },
       fontFamily: {
@@ -38,10 +45,12 @@ export default {
         display: ['Outfit', 'Inter', 'sans-serif'],
       },
       boxShadow: {
-        'glow-cyan': '0 0 25px -5px rgba(6, 182, 212, 0.35)',
-        'glow-amber': '0 0 25px -5px rgba(245, 158, 11, 0.35)',
-        'glow-emerald': '0 0 25px -5px rgba(16, 185, 129, 0.35)',
-        'glow-rose': '0 0 25px -5px rgba(244, 63, 94, 0.35)',
+        'glow-blue': '0 0 25px -4px rgba(22, 139, 255, 0.4)',
+        'glow-cyan': '0 0 25px -4px rgba(0, 217, 255, 0.4)',
+        'glow-violet': '0 0 25px -4px rgba(139, 92, 246, 0.4)',
+        'glow-magenta': '0 0 25px -4px rgba(217, 70, 239, 0.4)',
+        'glow-amber': '0 0 25px -4px rgba(255, 176, 32, 0.35)',
+        'card': '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
       }
     },
   },
