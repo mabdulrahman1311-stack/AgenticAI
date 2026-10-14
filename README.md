@@ -1,412 +1,331 @@
-# ResearchPulse — Autonomous Research Monitoring Agent
+# ResearchPulse — Autonomous Research Intelligence Command Center
 
-> **ResearchPulse** is an agentic research-monitoring system designed to keep track of selected research topics, discover new publications, analyze them, identify important changes, and notify users when relevant research appears.
+> **DejaVu Hackathon — Advanced Agentic AI Track Submission**  
+> An autonomous research-monitoring agent designed to continuously track scientific frontiers, detect meaningful scientific changes, deduplicate across preprint and secondary sources, identify direct contradictions, and synthesize evidence-backed intelligence streams.
 
-**Project type:** AI / Agentic AI / Research Monitoring  
-**Team size:** 4 members  
-**Project status:** Concept and project documentation in progress; implementation details should be updated as features are built and tested.
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688.svg?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
+[![React](https://img.shields.io/badge/React-19.0+-61DAFB.svg?logo=react&logoColor=black)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.6+-3178C6.svg?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4+-38B2AC.svg?logo=tailwind-css&logoColor=white)](https://tailwindcss.com)
+[![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0+-D71F00.svg)](https://www.sqlalchemy.org)
+[![APScheduler](https://img.shields.io/badge/APScheduler-3.10+-blue.svg)](https://apscheduler.readthedocs.io)
 
 ---
 
 ## Table of Contents
-
-1. [Overview](#1-overview)
-2. [Problem Statement](#2-problem-statement)
-3. [Proposed Solution](#3-proposed-solution)
-4. [How ResearchPulse Differs from a Chatbot](#4-how-researchpulse-differs-from-a-chatbot)
-5. [Objectives](#5-objectives)
-6. [Key Features](#6-key-features)
-7. [Target Users and Use Cases](#7-target-users-and-use-cases)
-8. [System Workflow](#8-system-workflow)
-9. [System Architecture](#9-system-architecture)
-10. [Planned Technology Stack](#10-planned-technology-stack)
-11. [Core Data and AI Processing](#11-core-data-and-ai-processing)
-12. [Team Responsibilities](#12-team-responsibilities)
-13. [Expected Outcomes and Benefits](#13-expected-outcomes-and-benefits)
-14. [Challenges and Safeguards](#14-challenges-and-safeguards)
-15. [Future Scope](#15-future-scope)
-16. [Development Roadmap](#16-development-roadmap)
-17. [Project Status](#17-project-status)
-18. [References](#18-references)
+1. [Executive Summary & Problem Statement](#1-executive-summary--problem-statement)
+2. [Why ResearchPulse Goes Beyond Simple Keyword Alerts](#2-why-researchpulse-goes-beyond-simple-keyword-alerts)
+3. [6 Hackathon Rubric Evaluation Scenarios](#3-6-hackathon-rubric-evaluation-scenarios)
+4. [System Architecture & Data Flow](#4-system-architecture--data-flow)
+5. [Database Schema (Relational Models)](#5-database-schema-relational-models)
+6. [UX/UI Command Center Aesthetic](#6-uxui-command-center-aesthetic)
+7. [Step-by-Step Quickstart & Setup Guide](#7-step-by-step-quickstart--setup-guide)
+8. [API Endpoints Reference](#8-api-endpoints-reference)
+9. [Automated Verification & Testing](#9-automated-verification--testing)
+10. [Authors & Hackathon Track Details](#10-authors--hackathon-track-details)
 
 ---
 
-## 1. Overview
-
-ResearchPulse is an **autonomous research monitoring agent** intended to help students, researchers, developers, and professionals follow fast-moving areas of research without manually searching for new papers every day.
-
-A user selects topics or keywords they want to monitor. ResearchPulse periodically checks available research sources, finds publications that may be new or relevant, removes duplicates, uses AI to extract useful information, compares new findings with previously tracked results, and prepares evidence-backed updates.
-
-The goal is not just to answer a question once. The goal is to support an ongoing monitoring process that can run on a schedule and surface useful updates over time.
-
-## 2. Problem Statement
-
-Research is published across different websites and repositories, and new papers appear continuously. Keeping up with relevant publications can require repeated searches, reading many abstracts, comparing papers, and deciding which updates matter.
-
-This creates several problems:
-
-- **Time-consuming monitoring:** users must repeatedly search for new publications.
-- **Information overload:** many results may be unrelated, repetitive, or low priority.
-- **Missed updates:** important work can be overlooked between manual searches.
-- **Limited comparison:** it takes effort to understand how a new paper relates to earlier work.
-- **Scattered information:** findings and paper links can be spread across multiple sources.
-
-ResearchPulse aims to reduce this manual work while keeping the original paper links and supporting evidence available for verification.
-
-## 3. Proposed Solution
-
-ResearchPulse will let a user define a topic to monitor and configure how often the system checks for updates. On each monitoring run, the agent will:
-
-1. Retrieve potentially relevant publications from supported research sources.
-2. Normalize publication details and identify duplicates.
-3. Assess relevance against the user's topic and preferences.
-4. Generate a concise summary of each relevant paper, including its research question, approach, and key findings where the source provides enough information.
-5. Compare the new results with the previously stored monitoring history.
-6. Highlight noteworthy new papers or changes in the research landscape.
-7. Store the results and prepare notifications or a digest for the user.
-
-The design is intended to make monitoring **continuous, traceable, and easier to act on**. Any generated summary should link back to its source so the user can check the original publication.
-
-## 4. How ResearchPulse Differs from a Chatbot
-
-| Capability | Typical question-answering chatbot | ResearchPulse |
-|---|---|---|
-| Main interaction | Responds when a user sends a prompt | Monitors saved topics across repeated runs |
-| Timing | Usually prompt-driven | Can run on a configured schedule |
-| Research discovery | May search when asked | Repeatedly retrieves new publications from configured sources |
-| History | May not maintain a structured monitoring history | Stores prior results to support deduplication and change detection |
-| Relevance | Answers the current question | Ranks and filters publications against a monitoring topic |
-| Updates | Usually requires another prompt | Can prepare alerts or digests when useful new results are found |
-| Evidence | Depends on the chatbot and its tools | Designed to retain paper metadata and source links for checking |
-| Main purpose | Conversational assistance | Ongoing research tracking and update discovery |
-
-**Core difference:** a chatbot is mainly a conversational interface; ResearchPulse is intended to be a persistent monitoring workflow. It combines scheduled retrieval, memory of prior results, analysis, change detection, and notifications. The AI model is one component of the system rather than the entire system.
-
-## 5. Objectives
-
-- Automate recurring searches for research papers on chosen topics.
-- Reduce the time needed to identify relevant publications.
-- Summarize useful information in an accessible format.
-- Identify new results and reduce duplicate notifications.
-- Maintain a history of monitored papers and monitoring runs.
-- Provide source links so users can verify AI-generated descriptions.
-- Build a modular system that can support more research sources and analysis tools over time.
-
-## 6. Key Features
-
-The following features describe the intended product. Mark each feature as complete only after it has been implemented and tested.
-
-### 6.1 Topic Monitoring
-Users can define topics, keywords, or research areas they want ResearchPulse to follow.
-
-### 6.2 Scheduled Research Discovery
-The system can run checks at a configured interval instead of relying on the user to start every search manually.
-
-### 6.3 Research Retrieval
-The agent retrieves publication metadata and available abstracts from supported sources, such as arXiv. Additional sources may be added later.
-
-### 6.4 Duplicate Detection
-The system checks identifiers, titles, or normalized metadata to avoid storing or notifying users about the same paper repeatedly.
-
-### 6.5 AI-Powered Paper Summaries
-The system generates structured summaries from available paper information. It should distinguish source-supported facts from uncertainty and should not invent details that are absent from the source.
-
-### 6.6 Relevance Ranking
-The system assigns a relevance score or priority based on the user's topic and configured preferences. The score should be treated as an aid, not a guarantee of research quality.
-
-### 6.7 Change Detection
-New results are compared with the monitoring history so the system can identify newly discovered papers and avoid repeating unchanged information unnecessarily.
-
-### 6.8 Notifications and Digests
-The system is designed to prepare concise alerts or periodic digests containing the paper title, short explanation of relevance, publication details, and source link.
-
-### 6.9 Monitoring History
-Users can review previously found papers and earlier monitoring results rather than losing context after each run.
-
-## 7. Target Users and Use Cases
-
-### Target Users
-- College students exploring a technical or academic topic.
-- Researchers following developments in a research field.
-- Developers tracking advances in AI, software, or engineering.
-- Innovation teams that need regular awareness of emerging research.
-
-### Example Use Cases
-
-**Use case 1 — AI research:** A student monitors large language models and receives a digest of newly found papers.
-
-**Use case 2 — Cybersecurity:** A developer tracks research on a particular security topic and reviews new publications during scheduled checks.
-
-**Use case 3 — Literature review:** A researcher monitors a subject over several weeks and uses the stored paper list to help organize a literature review.
-
-**Use case 4 — Technology trends:** A team follows a technical area and receives a curated list of potentially important new work instead of scanning multiple sources manually.
-
-## 8. System Workflow
-
-```text
-User creates a monitoring topic
-            |
-            v
-Scheduler starts a monitoring run
-            |
-            v
-Retrieve papers from configured sources
-            |
-            v
-Normalize metadata and remove duplicates
-            |
-            v
-Filter and rank by relevance
-            |
-            v
-AI summarizes relevant papers
-            |
-            v
-Compare results with stored history
-            |
-            v
-Save papers, summaries, and run details
-            |
-            v
-Prepare alerts or a research digest
-            |
-            v
-User opens the update and checks source papers
-```
-
-The workflow should handle partial source failures gracefully. A failed source check should be recorded rather than silently treated as proof that no new papers exist.
-
-## 9. System Architecture
-
-The proposed system is divided into the following components:
-
-| Component | Responsibility |
-|---|---|
-| Frontend | Lets users create topics, view papers, and review summaries and alerts |
-| Backend API | Handles requests, validation, authentication if implemented, and communication between components |
-| Scheduler | Starts recurring monitoring jobs |
-| Research retrieval module | Queries configured research sources and collects metadata |
-| Processing module | Normalizes metadata and detects likely duplicates |
-| AI analysis module | Produces structured summaries and relevance assessments |
-| Change-detection module | Compares the current run with previously stored results |
-| Database | Stores topics, papers, monitoring runs, summaries, and notification status |
-| Notification module | Prepares and sends alerts or digests through the configured channel |
-
-### Proposed High-Level Architecture
-
-```text
-React + TypeScript Frontend
-            |
-            v
-       FastAPI Backend
-            |
-    +-------+--------+----------------+
-    |                |                |
-    v                v                v
-Scheduler      Research Sources   AI Analysis
-    |          (e.g. arXiv)      (LLM API)
-    |                |                |
-    +----------------+----------------+
-                     |
-                     v
-              Processing Agent
-      (deduplication, ranking, comparison)
-                     |
-                     v
-                PostgreSQL
-                     |
-                     v
-              Alerts / Digests
-```
-
-This is a proposed logical design, not a claim that every component is already operational.
-
-## 10. Planned Technology Stack
-
-The stack below is a practical starting proposal. Update it to match the libraries and services actually selected and integrated in the repository.
-
-| Layer | Planned technology | Purpose |
-|---|---|---|
-| Frontend | React | Build the user interface |
-| Frontend language | TypeScript | Add type safety to frontend code |
-| Styling | Tailwind CSS | Create a consistent, responsive interface |
-| Backend | Python with FastAPI | Provide API endpoints and connect system modules |
-| AI model | OpenAI API or another compatible LLM API | Summarize papers and help assess relevance |
-| Agent orchestration | Python modules; LangGraph is optional | Organize retrieval, analysis, and decision steps if the workflow needs it |
-| Primary research source | arXiv API | Retrieve publication metadata and abstracts where available |
-| Additional research source | Semantic Scholar API, optional | Expand coverage where access and API limits allow |
-| Database | PostgreSQL | Persist monitoring data and history |
-| Database access | SQLAlchemy | Map Python application models to database records |
-| Scheduling | APScheduler | Trigger periodic monitoring jobs |
-| Semantic similarity | Sentence Transformers, optional | Help compare topics and identify semantically similar papers |
-| Backend testing | Pytest and API integration tests | Check backend logic and endpoint behavior |
-| Frontend testing | Vitest and React Testing Library | Test frontend components and behavior |
-| Version control | Git and GitHub | Track code, review changes, and collaborate as a team |
-| Deployment | Cloud hosting to be selected | Make the application accessible for a demonstration or production use |
-
-**Stack consistency note:** this README assumes a Python/FastAPI backend and SQLAlchemy for database access. Prisma is usually a better fit for a TypeScript/Node.js backend. If the team chooses Node.js and Prisma instead, update the backend, database-access, and testing sections together rather than listing incompatible choices as though both are in use.
-
-### AI Capabilities
-
-AI may be used to:
-
-- Summarize paper titles, abstracts, and other permitted source content.
-- Explain why a publication may be relevant to a monitored topic.
-- Extract structured fields when supported by the source material.
-- Draft concise research digests.
-
-AI output should be paired with source links and basic validation. An LLM should not be treated as the authority for publication metadata when that information can be retrieved directly from the source.
-
-## 11. Core Data and AI Processing
-
-### Suggested Data Entities
-
-- **User:** account and preferences, if user accounts are included.
-- **Topic:** monitored topic, keywords, sources, and scheduling preferences.
-- **Paper:** title, authors, abstract, publication date, source, external identifier, and URL.
-- **Paper analysis:** summary, relevance score, explanation, and analysis timestamp.
-- **Monitoring run:** start time, completion status, sources checked, and run results.
-- **Alert or digest:** related topic, included papers, creation time, and delivery status.
-
-These are suggested entities for initial database design; the final schema may change as requirements become clearer.
-
-### Suggested Processing Rules
-
-1. Prefer stable publication identifiers when checking whether a paper has already been stored.
-2. If an identifier is missing, use normalized metadata such as title and authors as a fallback for duplicate checks.
-3. Store the source URL and retrieval timestamp for traceability.
-4. Keep the relevance score separate from measures of paper quality or credibility.
-5. Record failures and incomplete runs so the system can distinguish a source outage from a run that found no new papers.
-6. Generate a notification only when there is a meaningful update or when the user explicitly requests a full digest.
-7. Allow users to open the original source and verify the summary themselves.
-
-## 12. Team Responsibilities
-
-For a team of four, responsibilities can be divided as follows. Team members should coordinate API contracts and agree on data formats before building modules in parallel.
-
-| Team member / role | Main responsibilities |
-|---|---|
-| Member 1 — Frontend | React interface, topic management screens, paper list, detail pages, and digest display |
-| Member 2 — Backend and database | FastAPI endpoints, PostgreSQL schema, persistence, and integration between modules |
-| Member 3 — Research retrieval and scheduling | Research-source integration, scheduled runs, metadata normalization, and duplicate detection |
-| Member 4 — AI analysis and quality assurance | Prompt design, summaries, relevance ranking, change-detection support, testing, and demo validation |
-
-These are proposed roles, not fixed assignments. For a small hackathon team, each person may help with integration, documentation, and the final presentation.
-
-### Suggested Collaboration Practices
-
-- Keep the API contract and database fields documented in the repository.
-- Use separate Git branches for independent features and review changes before merging.
-- Store API keys in environment variables or a secret manager; never commit secrets to GitHub.
-- Assign one owner to integrate the complete end-to-end demo.
-- Test the full workflow with a small set of known papers before expanding the number of sources.
-
-## 13. Expected Outcomes and Benefits
-
-If implemented as designed, ResearchPulse should:
-
-- Reduce repeated manual searching for research papers.
-- Make relevant new publications easier to discover.
-- Give users a faster first understanding of papers through concise summaries.
-- Reduce repeated results with deduplication and monitoring history.
-- Improve continuity by comparing each run with previous results.
-- Make research updates easier to verify through source links.
-
-These are expected benefits and should be measured during testing rather than presented as proven results before evaluation.
-
-## 14. Challenges and Safeguards
-
-| Challenge | Proposed safeguard |
-|---|---|
-| Incomplete or unavailable source data | Record source status and show when a monitoring run is partial |
-| Duplicate or near-duplicate papers | Check stable identifiers and normalized metadata; review uncertain matches |
-| Incorrect AI summaries | Keep summaries grounded in retrieved content and retain original source links |
-| Irrelevant results | Tune topic terms and ranking rules using test examples and user feedback |
-| API rate limits | Respect source policies, cache results, and limit request frequency |
-| Lost or repeated alerts | Track stored results and notification delivery status |
-| Exposed credentials | Use environment variables or a secret manager; exclude secrets from version control |
-| Overstating research importance | Explain that relevance scores are estimates and not measures of scientific validity |
-
-## 15. Future Scope
-
-Potential improvements after the first working version include:
-
-- Additional research repositories and publication sources.
-- Personalized filters by author, venue, date, keywords, or study area.
-- Semantic search across the saved research collection.
-- Related-paper and citation-based discovery where source APIs support it.
-- Weekly or monthly research reports.
-- Email, in-app, or other notification channels.
-- Export to CSV, BibTeX, or reference-management tools.
-- Team workspaces for shared monitoring topics.
-- User feedback to improve relevance ranking.
-- Evaluation dashboards for retrieval quality, duplicate rate, summary usefulness, and notification precision.
-
-These are future possibilities and are not part of the current scope unless implemented.
-
-## 16. Development Roadmap
-
-### Phase 1 — Minimum Viable Product
-- Define a monitoring topic and keywords.
-- Retrieve papers from one research source.
-- Normalize results and remove exact duplicates.
-- Store paper metadata and monitoring history.
-- Show the paper list and original source links in the frontend.
-
-### Phase 2 — AI Analysis
-- Add structured summaries.
-- Add topic relevance scoring and an explanation of relevance.
-- Validate generated output and handle missing abstracts safely.
-
-### Phase 3 — Autonomous Monitoring
-- Add scheduled monitoring runs.
-- Compare each run with stored history.
-- Generate alerts only for new, relevant results.
-- Record run status and source errors.
-
-### Phase 4 — Demonstration and Evaluation
-- Prepare a small, repeatable test collection.
-- Check duplicate detection and relevance-ranking behavior.
-- Review summary accuracy against source abstracts.
-- Demonstrate a topic being monitored across at least two runs.
-- Document known limitations and possible next steps.
-
-## 17. Project Status
-
-The project concept and the proposed workflow, architecture, technology stack, team roles, and roadmap are documented here. **This README does not imply that the listed features have already been implemented.** Update this section as development progresses.
-
-Suggested status checklist:
-
-- [ ] Repository structure and development setup finalized
-- [ ] Frontend created
-- [ ] Backend API created
-- [ ] Database schema and persistence implemented
-- [ ] First research source integrated
-- [ ] Duplicate detection tested
-- [ ] AI summaries and relevance scoring integrated
-- [ ] Scheduled monitoring implemented
-- [ ] Change detection and alert generation implemented
-- [ ] End-to-end demo tested
-- [ ] Deployment and demo instructions documented
-
-## 18. References
-
-Use the official documentation for the services and libraries selected by the team:
-
-- [arXiv API Access](https://info.arxiv.org/help/api/index.html)
-- [Semantic Scholar API](https://www.semanticscholar.org/product/api)
-- [FastAPI Documentation](https://fastapi.tiangolo.com/)
-- [React Documentation](https://react.dev/)
-- [TypeScript Documentation](https://www.typescriptlang.org/docs/)
-- [PostgreSQL Documentation](https://www.postgresql.org/docs/)
-- [SQLAlchemy Documentation](https://docs.sqlalchemy.org/)
-- [APScheduler Documentation](https://apscheduler.readthedocs.io/)
-- [Pytest Documentation](https://docs.pytest.org/)
-- [Vitest Documentation](https://vitest.dev/)
-- [GitHub Docs](https://docs.github.com/)
+## 1. Executive Summary & Problem Statement
+
+Academic research and AI preprints are released at an unprecedented pace. Traditional tools like Google Scholar alerts or keyword search bots produce overwhelming noise:
+- **Information Overload:** Users receive dozens of near-identical alerts for minor parameter runs and re-uploads.
+- **Isolated Per-Paper Summaries:** Existing tools summarize each paper in a vacuum without comparing it against prior discoveries in that field.
+- **Unverified & Sensational Claims:** Ambiguous preprints claiming breakthroughs slip through without caution indicators or empirical verification checks.
+- **Zero Scientific Contradiction Awareness:** Researchers are not notified when a new publication directly refutes or challenges a previously accepted paradigm.
+
+**ResearchPulse** solves this by operating as a persistent, autonomous monitoring agent that:
+1. Periodically queries research feeds (live arXiv Atom/XML and secondary digests).
+2. Performs **multi-source convergence clustering** to collapse multiple articles reporting the same breakthrough into a unified parent card.
+3. Conducts **historical baseline comparisons** against prior tracked findings.
+4. Detects **scientific contradictions** and assigns color-coded priority warnings.
+5. Computes **quantified value/metric shifts** (e.g. latency deltas, context window scaling, accuracy leaps).
+6. Distinguishes **primary preprint repositories** from secondary reports with objective source reliability scoring.
+7. Surfaces **traceable evidence drawers** with verbatim quotes from the paper text to eliminate hallucination.
 
 ---
 
-## Summary
+## 2. Why ResearchPulse Goes Beyond Simple Keyword Alerts
 
-ResearchPulse aims to move research discovery from one-time, prompt-based searching toward ongoing, evidence-backed monitoring. Its main value is the combination of scheduled retrieval, duplicate detection, AI-supported analysis, stored history, change detection, and notifications. The first development priority should be a small end-to-end version that reliably retrieves papers, stores them, and identifies what is new; more advanced agent behavior can be added after that foundation works.
+| Feature | Standard Keyword Alert (Google Scholar / RSS) | Typical Conversational Chatbot | ResearchPulse Autonomous Agent |
+|---|---|---|---|
+| **Interaction Model** | Passive email push | Single prompt-response | Continuous autonomous agent workflow |
+| **History & Memory** | None (stateless) | Transient conversation context | Relational persistent memory of prior findings |
+| **Change Detection** | None (sends every hit) | No historical baseline | Compares new papers against past topic conclusions |
+| **Deduplication** | Exact URL only | None | Fuzzy title matching + multi-source convergence |
+| **Alert Fatigue Filter**| None | N/A | Suppresses minor updates & hyperparameter runs |
+| **Contradiction Alert**| None | Only if explicitly asked | Autonomous refutation warning against baseline |
+| **Traceability** | Plain link | Hallucination risk | Direct verbatim quotes & confidence scoring |
+
+---
+
+## 3. 6 Hackathon Rubric Evaluation Scenarios
+
+The prototype includes built-in test handlers and realistic benchmark data for all 6 scenarios required by the DejaVu Hackathon:
+
+### Scenario 1: Multi-Article Convergence
+- **Problem:** Multiple news outlets, digests, and preprints report on the exact same core breakthrough, flooding users with duplicate cards.
+- **Agent Solution:** `DeduplicationEngine` detects cross-source convergence using normalized token overlap and semantic clues, assigning a shared `cluster_id`.
+- **UI Presentation:** A single parent card (*"Sparse Mixture-of-Experts with Dynamic Expert Capacity and Balanced Routing"*) featuring an expandable accordion displaying the 2 convergent secondary reports (*NeurIPS Technical Brief* and *Hugging Face Daily*), complete with source reliability badges and direct links.
+
+### Scenario 2: Contradiction Detection
+- **Problem:** Scientific literature frequently overturns previous assumptions, but researchers miss the shift.
+- **Agent Solution:** `ChangeDetectionEngine` queries historical `PaperAnalysis` records. When a new paper refutes prior findings, it triggers `has_contradiction = True` and sets `significance_level = "Contradiction Warning"`.
+- **Example:**
+  - *Baseline Paper:* Vance et al. (`arxiv:2311.04219`) claimed linear attention mechanisms undergo entropy collapse beyond 32k tokens.
+  - *Incoming Paper:* Al-Mansoor et al. (`arxiv:2404.11290`) proves 1M-token needle retrieval using Rotary-Aligned State Tracking, explicitly refuting Vance et al.
+- **UI Presentation:** Pulsing amber badge, refutation link, and dedicated diff box in the What's New Delta Matrix.
+
+### Scenario 3: Alert Fatigue Prevention
+- **Problem:** Minor prompt tweaks or slight parameter sweeps trigger high-priority alerts, causing alert fatigue.
+- **Agent Solution:** Incremental cue detection flags routine variations (e.g., *“Minor Prompt Engineering Variations on HumanEval”* with +0.4% noise) as `significance_level = "Minor Update"` and suppresses high-priority push notifications.
+- **UI Presentation:** Card marked with a muted badge `(Suppressed)`, filtered from high-priority streams unless explicitly searched.
+
+### Scenario 4: Trend Emergence & Horizon Synthesis
+- **Problem:** Individual papers obscure the broader multi-week direction of research.
+- **Agent Solution:** `TrendAnalyzer` aggregates recurring keywords, tracks velocity (`+195%` in Speculative Decoding), and compiles timeline metrics.
+- **UI Presentation:** Recharts AreaChart of research acceleration over time, theme frequency bar charts, and an autonomous narrative synthesis.
+
+### Scenario 5: Weakly Supported Claim Handling
+- **Problem:** Sensational preprints make unverified claims without empirical evidence.
+- **Agent Solution:** `SignificanceRanker` scans for exaggerated buzzwords (*"solves AGI"*, *"100% accuracy on all tasks"*, *"zero errors"*) lacking benchmarks or ablation studies.
+- **UI Presentation:** Vivid caution warning badge: `Caution: Unverified Claim (Reliability 42%)` with an explanatory note warning of unverified methodology.
+
+### Scenario 6: Value / Conclusion Shifts
+- **Problem:** Metric improvements are buried in lengthy abstracts.
+- **Agent Solution:** Regex and structured extraction isolate numerical advances and compare them against historical baselines.
+- **Example:** Self-Reflective Tree-Search (`arxiv:2404.08311`) on WebArena:
+  - Task Success: `74.5% (Prior SOTA) -> 92.1% (SRTS)` (`+17.6% Absolute Gain`)
+  - Execution Latency: `45.2s -> 11.4s` (`-74.8% / 4x Speedup`)
+- **UI Presentation:** Dedicated Before vs After diff chips on the card and in the Delta Panel.
+
+---
+
+## 4. System Architecture & Data Flow
+
+```text
+       React 19 + TypeScript + Tailwind CSS Frontend
+                 (Intelligence Command Center)
+                              |
+                     REST APIs (FastAPI)
+                              |
+    +-------------------------+-------------------------+
+    |                         |                         |
+    v                         v                         v
+APScheduler Background     arXiv Public Atom API     OpenAI SDK (gpt-4o-mini)
+Periodic Job Scheduler    (HTTPS + Atom XML Parser)   Structured Output JSON
+    |                         |                       (Heuristic Fallback Engine)
+    +-------------------------+-------------------------+
+                              |
+                              v
+                   Autonomous Agent Pipeline
+       (Deduplication -> Change Detection -> Significance Ranking)
+                              |
+                              v
+                 SQLAlchemy Relational Engine
+               (SQLite local / PostgreSQL prod)
+                              |
+    +-------------------------+-------------------------+
+    |                         |                         |
+    v                         v                         v
+PaperAnalyses & Diffs     Multi-Source Clusters     Trend Snapshots
+```
+
+### Fallback Resilience
+- **OpenAI Key Optional:** If an `OPENAI_API_KEY` is not provided or set to empty, ResearchPulse automatically uses its internal **Heuristic NLP Agent Engine**, allowing full evaluation, seeding, and demo testing without requiring external paid API keys.
+- **arXiv Gateway Resilience:** If network timeouts or HTTP 504 errors occur during retrieval, the pipeline logs a `partial` execution status and gracefully saves available papers rather than aborting.
+
+---
+
+## 5. Database Schema (Relational Models)
+
+### `Topic`
+- `id` (int, PK)
+- `name` (str, indexed)
+- `description` (text)
+- `keywords` (JSON array of strings)
+- `schedule_interval_hours` (int, default 6)
+- `is_active` (bool)
+- `last_run_at` (datetime)
+- `created_at`, `updated_at` (datetime)
+
+### `Paper`
+- `id` (int, PK)
+- `external_id` (str, unique, e.g. `arxiv:2403.09871`)
+- `title` (str, indexed)
+- `authors` (JSON list)
+- `abstract` (text)
+- `published_date` (datetime)
+- `source_url` (str)
+- `source_type` (`primary_preprint`, `secondary_report`)
+- `cluster_id` (str, for multi-source convergence)
+- `created_at` (datetime)
+
+### `PaperAnalysis`
+- `id` (int, PK)
+- `paper_id` (FK `papers.id`)
+- `topic_id` (FK `topics.id`)
+- `summary` (text)
+- `research_question` (text)
+- `approach` (text)
+- `key_findings` (JSON list)
+- `relevance_score` (float, 0.0 - 1.0)
+- `significance_level` (`High Impact`, `Minor Update`, `Contradiction Warning`, `Incremental Progress`)
+- `confidence_score` (float)
+- `source_reliability_score` (float)
+- `delta_notes` (text)
+- `has_contradiction` (bool)
+- `contradiction_target_title` (str)
+- `contradiction_detail` (text)
+- `value_metric_shifts` (JSON list: `[{metric, previous, current, delta}]`)
+- `weakly_supported_warning` (bool)
+- `caution_notes` (text)
+- `evidence_snippets` (JSON list of verbatim quotes)
+- `analyzed_at` (datetime)
+
+### `MonitoringRun`
+- `id` (int, PK)
+- `topic_id` (FK `topics.id`)
+- `started_at`, `completed_at` (datetime)
+- `status` (`success`, `partial`, `failed`, `running`)
+- `papers_found_count`, `new_papers_count`, `duplicates_skipped_count` (int)
+- `error_message` (text)
+- `log_details` (JSON list of step-by-step diagnostic events)
+
+### `TrendSnapshot`
+- `id` (int, PK)
+- `topic_id` (FK `topics.id`)
+- `period_label` (str)
+- `emerging_themes` (JSON list with velocity and confidence)
+- `summary_narrative` (text)
+- `metrics` (JSON timeline and counts)
+- `created_at` (datetime)
+
+---
+
+## 6. UX/UI Command Center Aesthetic
+
+The user interface is crafted with a modern, glassmorphic dark-mode aesthetic (with a clean light-mode toggle) built in React, TypeScript, and Tailwind CSS:
+1. **Radar Pulse & System Status:** Real-time ticker showing active topics, verified publications, high-impact alerts, and contradiction flags.
+2. **The "What's New" Delta Panel:** A dedicated diff view above the paper feed comparing incoming findings against the topic's stored history.
+3. **Multi-Source Convergence Cards:** Collapses related reports into a parent card with an accordion revealing individual sources.
+4. **Traceable Evidence Drawer:** Slide-in drawer with verbatim source quotes, source reliability scores, and historical metric deltas.
+5. **Interactive Rubric Scenarios Modal:** A 1-click launcher allowing judges to test each of the 6 hackathon scenarios instantly.
+6. **Execution Diagnostics Drawer:** Real-time terminal log viewer detailing each step of the autonomous agent pipeline.
+
+---
+
+## 7. Step-by-Step Quickstart & Setup Guide
+
+### Prerequisites
+- **Python 3.10+** (tested on 3.10, 3.11, 3.12, 3.13, 3.14)
+- **Node.js 18+** and npm
+
+---
+
+### Backend Setup
+
+1. Navigate to the backend directory:
+   ```bash
+   cd backend
+   ```
+
+2. (Optional) Create and activate a virtual environment:
+   ```bash
+   python -m venv venv
+   # On Windows:
+   venv\Scripts\activate
+   # On Linux/macOS:
+   source venv/bin/activate
+   ```
+
+3. Install backend dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. Configure environment variables (optional):
+   ```bash
+   cp .env.example .env
+   ```
+   *Note: If `OPENAI_API_KEY` is left blank, the application automatically runs its built-in Heuristic NLP Agent Engine.*
+
+5. Start the backend server:
+   ```bash
+   uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
+   ```
+   *The database tables will be created automatically, and the 6 evaluation benchmark scenarios will be seeded on startup!*
+
+---
+
+### Frontend Setup
+
+1. In a new terminal, navigate to the frontend directory:
+   ```bash
+   cd frontend
+   ```
+
+2. Install frontend dependencies:
+   ```bash
+   npm install --legacy-peer-deps
+   ```
+
+3. Start the frontend development server:
+   ```bash
+   npm run dev
+   ```
+
+4. Open your browser and navigate to:
+   ```
+   http://localhost:5173/
+   ```
+
+---
+
+## 8. API Endpoints Reference
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/topics` | List all monitored topics with latest run status & alert counts |
+| `POST` | `/api/topics` | Create a new monitored research topic with keywords and interval |
+| `GET` | `/api/topics/{id}` | Retrieve single topic metadata and statistics |
+| `PUT` | `/api/topics/{id}` | Update topic keywords, interval, or active state |
+| `DELETE`| `/api/topics/{id}` | Delete topic and unregister from background scheduler |
+| `POST` | `/api/topics/{id}/trigger` | Force an immediate autonomous monitoring run for a topic |
+| `GET` | `/api/topics/{id}/papers` | Retrieve enriched intelligence stream (supports `significance`, `group_by_cluster`, `search`) |
+| `GET` | `/api/topics/{id}/runs` | Retrieve execution history and step diagnostic logs for a topic |
+| `GET` | `/api/topics/{id}/trends` | Retrieve trend snapshots and emerging theme velocity data |
+| `POST` | `/api/topics/{id}/trends/regenerate` | Force recalculation of trend matrix and synthesis narrative |
+| `GET` | `/api/runs` | Fetch latest diagnostic execution logs across all topics |
+| `GET` | `/api/system/stats` | System overview stats (active topics, papers, alerts, heartbeat) |
+| `POST` | `/api/system/seed-scenarios` | Reset and re-seed all 6 DejaVu Hackathon evaluation scenarios |
+| `POST` | `/api/system/trigger-all` | Trigger immediate monitoring runs across all active topics |
+
+---
+
+## 9. Automated Verification & Testing
+
+You can verify the backend endpoints and scenario logic directly from the command line:
+
+```bash
+# Verify backend health and system stats
+python -c "import urllib.request; print(urllib.request.urlopen('http://127.0.0.1:8000/api/system/stats').read().decode())"
+
+# Verify multi-article convergence grouping
+python -c "import urllib.request, json; data = json.loads(urllib.request.urlopen('http://127.0.0.1:8000/api/topics/2/papers').read().decode()); clustered = [p for p in data if p['cluster_siblings_count'] > 0]; print(f'Convergent clusters: {len(clustered)}, Sources in cluster: {clustered[0][\"cluster_siblings_count\"] + 1}')"
+
+# Verify contradiction detection
+python -c "import urllib.request, json; data = json.loads(urllib.request.urlopen('http://127.0.0.1:8000/api/topics/2/papers?has_contradiction=true').read().decode()); print(f'Contradictions flagged: {len(data)}, Target refutation: {data[0][\"contradiction_target_title\"][:50]}...')"
+
+# Verify live arXiv retrieval
+python -c "import asyncio, sys; sys.path.insert(0, 'backend'); from app.retrieval.arxiv_client import ArxivClient; res = asyncio.run(ArxivClient().fetch_papers(['agentic reasoning'], max_results=2)); print(f'arXiv status: {res[\"status\"]}, Retrieved: {len(res[\"papers\"])}') "
+```
+
+---
+
+## 10. Authors & Hackathon Track Details
+
+- **Project:** ResearchPulse — Autonomous Research Intelligence Command Center
+- **Hackathon:** DejaVu Hackathon
+- **Track:** Advanced Agentic AI Track
+- **Core Capabilities:** Meaningful-Change Detection &bull; Multi-Source Deduplication &bull; Historical Comparison &bull; Trend Emergence &bull; Significance Ranking &bull; Source Reliability &bull; Traceable Grounded Summaries
